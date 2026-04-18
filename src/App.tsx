@@ -61,16 +61,37 @@ export default function App() {
     );
   };
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Tracking Route */}
-        <Route path="/track/:userId" element={<LiveTrack />} />
-        
-        {/* Main App */}
-        <Route path="/*" element={renderAuthenticatedApp()} />
-      </Routes>
-    </BrowserRouter>
-  );
+  try {
+    return (
+      <BrowserRouter>
+        <Routes>
+          {/* Public Tracking Route */}
+          <Route path="/track/:userId" element={<LiveTrack />} />
+          
+          {/* Main App */}
+          <Route path="/*" element={renderAuthenticatedApp()} />
+        </Routes>
+      </BrowserRouter>
+    );
+  } catch (error) {
+    console.error("Critical Application Crash:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-danger p-10">
+        <div className="bento-card bg-white max-w-lg">
+          <h1 className="text-3xl font-black uppercase italic mb-4">Tactical System Error</h1>
+          <p className="font-bold opacity-70 mb-6">A critical initialization sequence failed. This is usually caused by missing environment variables or corrupted configuration.</p>
+          <div className="bg-ink bg-opacity-5 p-4 font-mono text-xs overflow-auto max-h-40">
+            {error instanceof Error ? error.message : String(error)}
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-6 brutal-button bg-accent text-white py-3 px-8 uppercase"
+          >
+            Re-Establish Link
+          </button>
+        </div>
+      </div>
+    );
+  }
 }
 

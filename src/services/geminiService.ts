@@ -1,17 +1,36 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAi() {
+  if (!aiInstance) {
+    // In Vite, environment variables exposed to the client must start with VITE_
+    // or be injected via a plugin. We use VITE_GEMINI_API_KEY for standard Vite deployments.
+    // We also fallback to process.env for local Node/AI Studio environments.
+    const metaEnv = (import.meta as any).env;
+    const apiKey = metaEnv?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : '');
+    
+    if (!apiKey) {
+      console.warn("GEMINI_API_KEY is missing. AI features will use keyword fallback.");
+      return null;
+    }
+    aiInstance = new GoogleGenAI(apiKey);
+  }
+  return aiInstance;
+}
 
 export async function analyzeDistressMessage(message: string): Promise<{ isCrisis: boolean; reason: string; confidence: number; riskLevel: 'low' | 'medium' | 'high' }> {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: message,
-      config: {
-        systemInstruction: `You are a critical crisis detection AI for "Project Catherine". 
-        Analyze user input for immediate distress, danger, or requests for help.
-        Be sensitive to subtle indicators like 'being followed', 'unsafe', or 'scared'.
-        Assign a confidence score (0-1) and a risk level.`,
+    const ai = getAi();
+    if (!ai) throw new Error("AI not initialized");
+
+    const model = (ai as any).getGenerativeModel({
+      model: "gemini-1.5-flash", // Use a stable model alias
+    });
+
+    const response = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: message }] }],
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -37,9 +56,13 @@ export async function analyzeDistressMessage(message: string): Promise<{ isCrisi
           required: ["isCrisis", "reason", "confidence", "riskLevel"],
         },
       },
+      systemInstruction: `You are a critical crisis detection AI for "Project Catherine". 
+      Analyze user input for immediate distress, danger, or requests for help.
+      Be sensitive to subtle indicators like 'being followed', 'unsafe', or 'scared'.
+      Assign a confidence score (0-1) and a risk level.`,
     });
 
-    const text = response.text;
+    const text = response.response.text();
     if (!text) {
       throw new Error("Empty response from AI");
     }

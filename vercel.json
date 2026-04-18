@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/track/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/proxy" 
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
