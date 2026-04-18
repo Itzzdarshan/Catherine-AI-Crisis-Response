@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg: #FDFCF8;
+  --ink: #000000;
+  --danger: #FF3B30;
+  --safe: #2ECC71;
+  --warning: #FFCC00;
+  --accent: #5856D6;
+  --card-bg: #FFFFFF;
+}
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-danger: var(--danger);
+  --color-safe: var(--safe);
+  --color-warning: var(--warning);
+  --color-accent: var(--accent);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+}
+
+@layer components {
+  .bento-card {
+    background: white;
+    border: 4px solid var(--ink);
+    box-shadow: 8px 8px 0px var(--ink);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brutal-card {
+    background: white;
+    border: 4px solid var(--ink);
+    box-shadow: 8px 8px 0px var(--ink);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brutal-border {
+    border: 4px solid var(--ink);
+    box-shadow: 4px 4px 0px var(--ink);
+  }
+
+  .brutal-button {
+    border: 4px solid var(--ink);
+    box-shadow: 4px 4px 0px var(--ink);
+    font-weight: 900;
+    text-transform: uppercase;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .brutal-button:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0px var(--ink);
+  }
+
+  .brutal-button:active {
+    transform: translate(0px, 0px);
+    box-shadow: 2px 2px 0px var(--ink);
+  }
+}

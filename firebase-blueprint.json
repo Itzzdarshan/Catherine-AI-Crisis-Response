@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user profile for safety monitoring.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "emergencyContact": { "type": "string" },
+        "medicalInfo": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] }
+      },
+      "required": ["uid", "name", "email"]
+    },
+    "Alert": {
+      "title": "Alert",
+      "description": "Safety alert triggered by a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "type": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["Active", "Resolved"] },
+        "description": { "type": "string" }
+      },
+      "required": ["userId", "userId", "location", "type", "timestamp", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Store user profiles."
+    },
+    "/alerts/{alertId}": {
+      "schema": "Alert",
+      "description": "Store distress alerts."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Project Catherine – AI Crisis Response",
+  "description": "An AI-powered personal safety and crisis response system with automated SOS triggers and real-time official dispatch.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"],
+  "majorCapabilities": []
+}
