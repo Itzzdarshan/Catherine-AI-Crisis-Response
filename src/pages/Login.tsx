@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { 
   signInWithPopup, 
+  signInWithRedirect,
   GoogleAuthProvider, 
   onAuthStateChanged,
   User 
@@ -50,17 +51,32 @@ export default function Login() {
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
-      // Use signInWithPopup - it's generally more reliable in SPAs
+      provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
     } catch (err: any) {
       console.error('Login failed:', err);
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
       if (err.code === 'auth/popup-blocked') {
-        setError('Popup Blocked. Please allow popups for this site.');
+        setError('Popup Blocked. Use the "Direct Link" button below or check Safari settings.');
       } else if (err.code === 'auth/unauthorized-domain') {
-        setError('Domain not authorized. Add your URL to Firebase Authorized Domains.');
+        setError('Domain not authorized. Please add "catherine-nu.vercel.app" to your Firebase Console settings.');
+      } else if (isSafari && (err.code === 'auth/internal-error' || err.code === 'auth/network-request-failed')) {
+        setError('Safari Tracking Protection is active. Use the "Direct Link" button below.');
       } else {
         setError(err.message || 'Authentication failed. Please try again.');
       }
+    }
+  };
+
+  const handleRedirectLogin = async () => {
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithRedirect(auth, provider);
+    } catch (err: any) {
+      setError(err.message || 'Redirect failed. Try using Chrome.');
     }
   };
 
@@ -91,13 +107,13 @@ export default function Login() {
 
         {error && (
           <div className="w-full space-y-4 mb-8">
-            <div className="w-full bg-danger bg-opacity-10 border-2 border-danger p-4 flex items-start gap-2 text-left">
-              <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
+            <div className="w-full bg-white border-4 border-danger p-4 flex items-start gap-3 text-left shadow-[4px_4px_0px_theme(colors.danger)]">
+              <AlertCircle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase text-danger leading-tight">
-                  Authentication Blocked
+                <p className="text-xs font-black uppercase text-danger leading-tight">
+                  Security Handshake Rejected
                 </p>
-                <p className="text-[10px] font-bold text-danger opacity-80 leading-tight">
+                <p className="text-[10px] font-bold text-ink opacity-90 leading-tight">
                   {error}
                 </p>
               </div>
@@ -118,13 +134,22 @@ export default function Login() {
           </div>
         )}
 
-        <button 
-          onClick={handleLogin}
-          className="w-full brutal-button bg-black text-white py-4 flex items-center justify-center gap-2"
-        >
-          <LogIn className="w-5 h-5" />
-          Authenticate with Google
-        </button>
+        <div className="w-full space-y-3">
+          <button 
+            onClick={handleLogin}
+            className="w-full brutal-button bg-black text-white py-4 flex items-center justify-center gap-2 group"
+          >
+            <LogIn className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            Authenticate with Google
+          </button>
+
+          <button 
+            onClick={handleRedirectLogin}
+            className="w-full brutal-button bg-white text-black py-4 flex items-center justify-center gap-2 text-xs font-black italic hover:bg-yellow-100"
+          >
+            Safari/Mobile? Use Direct Link
+          </button>
+        </div>
 
         <p className="mt-6 text-[10px] uppercase font-bold opacity-40">
           Environment: Experimental Security Sandbox
